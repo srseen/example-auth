@@ -9,6 +9,9 @@ import api, {
 interface User {
   id?: string;
   email?: string;
+  firstName?: string;
+  lastName?: string;
+  profilePictureUrl?: string;
 }
 
 interface AuthContextType {
@@ -19,12 +22,12 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   setAuth: (data: AuthResponse) => void;
+  refreshUser: () => Promise<void>;
 }
 
 interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  user?: User;
 }
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -32,28 +35,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessTokenState] = useState<string | null>(null);
 
-  const setAuth = ({
-    accessToken: token,
-    refreshToken,
-    user: authUser,
-  }: AuthResponse) => {
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await api.get<User>('/users/me');
+      setUser(res.data);
+      localStorage.setItem('user', JSON.stringify(res.data));
+    } catch {
+      setUser(null);
+      localStorage.removeItem('user');
+    }
+  }, []);
+
+  const setAuth = ({ accessToken: token, refreshToken }: AuthResponse) => {
     setAccessTokenState(token);
     setApiAccessToken(token);
     setApiRefreshToken(refreshToken);
     localStorage.setItem('accessToken', token);
     localStorage.setItem('refreshToken', refreshToken);
-    if (authUser) {
-      setUser(authUser);
-      localStorage.setItem('user', JSON.stringify(authUser));
-    } else {
-      setUser(null);
-      localStorage.removeItem('user');
-    }
   };
 
   const login = async (email: string, password: string) => {
     const res = await api.post<AuthResponse>('/auth/login', { email, password });
     setAuth(res.data);
+    await refreshUser();
   };
 
   const register = async (name: string, email: string, password: string) => {
@@ -63,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
     });
     setAuth(res.data);
+    await refreshUser();
   };
 
   const logout = useCallback(() => {
@@ -78,17 +83,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedAccess = localStorage.getItem('accessToken');
     const storedRefresh = localStorage.getItem('refreshToken');
-    const storedUser = localStorage.getItem('user');
     if (storedAccess && storedRefresh) {
       setAccessTokenState(storedAccess);
       setApiAccessToken(storedAccess);
       setApiRefreshToken(storedRefresh);
     }
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else if (storedAccess && storedRefresh) {
+      void refreshUser();
     }
     setLogoutHandler(logout);
-  }, [logout]);
+  }, [logout, refreshUser]);
 
   return (
     <AuthContext.Provider
@@ -100,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         setAuth,
+        refreshUser,
       }}
     >
       {children}
