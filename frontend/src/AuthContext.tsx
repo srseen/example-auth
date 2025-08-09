@@ -34,6 +34,7 @@ interface AuthContextType {
 interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+  user?: User;
 }
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
@@ -54,12 +55,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const setAuth = ({ accessToken: token, refreshToken }: AuthResponse) => {
+  const setAuth = ({ accessToken: token, refreshToken, user }: AuthResponse) => {
     setAccessTokenState(token);
     setApiAccessToken(token);
     setApiRefreshToken(refreshToken);
     localStorage.setItem("accessToken", token);
     localStorage.setItem("refreshToken", refreshToken);
+    if (user) {
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+    }
   };
 
   const login = async (email: string, password: string) => {
