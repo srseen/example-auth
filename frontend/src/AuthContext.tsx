@@ -1,5 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { api } from './services/api';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import api, {
+  setAccessToken as setApiAccessToken,
+  setRefreshToken as setApiRefreshToken,
+  setLogoutHandler,
+} from './api';
 
 interface User {
   id?: string;
@@ -13,45 +18,91 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  setAuth: (data: AuthResponse) => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user?: User;
+}
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessToken, setAccessTokenState] = useState<string | null>(null);
+
+  const setAuth = ({
+    accessToken: token,
+    refreshToken,
+    user: authUser,
+  }: AuthResponse) => {
+    setAccessTokenState(token);
+    setApiAccessToken(token);
+    setApiRefreshToken(refreshToken);
+    localStorage.setItem('accessToken', token);
+    localStorage.setItem('refreshToken', refreshToken);
+    if (authUser) {
+      setUser(authUser);
+      localStorage.setItem('user', JSON.stringify(authUser));
+    } else {
+      setUser(null);
+      localStorage.removeItem('user');
+    }
+  };
 
   const login = async (email: string, password: string) => {
-    const data = await api.post('/auth/login', { email, password });
-    setAccessToken(data.accessToken);
-    setUser(data.user ?? { email });
+    const res = await api.post<AuthResponse>('/auth/login', { email, password });
+    setAuth(res.data);
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const data = await api.post('/auth/register', { name, email, password });
-    setAccessToken(data.accessToken);
-    setUser(data.user ?? { email });
+    const res = await api.post<AuthResponse>('/auth/register', {
+      name,
+      email,
+      password,
+    });
+    setAuth(res.data);
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
-    setAccessToken(null);
-  };
+    setAccessTokenState(null);
+    setApiAccessToken(null);
+    setApiRefreshToken(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+  }, []);
+
+  useEffect(() => {
+    const storedAccess = localStorage.getItem('accessToken');
+    const storedRefresh = localStorage.getItem('refreshToken');
+    const storedUser = localStorage.getItem('user');
+    if (storedAccess && storedRefresh) {
+      setAccessTokenState(storedAccess);
+      setApiAccessToken(storedAccess);
+      setApiRefreshToken(storedRefresh);
+    }
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setLogoutHandler(logout);
+  }, [logout]);
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, isAuthenticated: !!accessToken, login, register, logout }}
+      value={{
+        user,
+        accessToken,
+        isAuthenticated: !!accessToken,
+        login,
+        register,
+        logout,
+        setAuth,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }
