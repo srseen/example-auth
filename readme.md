@@ -77,8 +77,10 @@ POSTGRES_DB=mydatabase
 PORT=3000
 
 # Environment variables for JWT configuration
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRATION=1h
+JWT_ACCESS_TOKEN_SECRET=your_access_token_secret
+JWT_ACCESS_TOKEN_EXPIRATION_TIME=1h
+JWT_REFRESH_TOKEN_SECRET=your_refresh_token_secret
+JWT_REFRESH_TOKEN_EXPIRATION_TIME=7d
 
 # CORS Environment Variables
 FRONTEND_URL=http://localhost:5173
