@@ -6,6 +6,7 @@ declare module '@nestjs/passport' {
 }
 
 declare module '@nestjs/jwt' {
+
   export class JwtService {
     signAsync(payload: any, options?: any): Promise<string>;
   }
