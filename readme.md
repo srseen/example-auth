@@ -44,6 +44,7 @@
    ```bash
    cp .env.example .env
    ```
+   ไฟล์ `.env` นี้จะถูกใช้ร่วมกันทั้ง Backend และ Frontend
 2. **เริ่มระบบทั้งหมด:**
    ```bash
    docker compose up --build
@@ -72,7 +73,7 @@
 
 5.  **ตั้งค่า Environment Variables:**
 
-    - ในโฟลเดอร์ `backend` ให้คัดลอกไฟล์ `.env.example` เป็น `.env`
+    - จากโฟลเดอร์โปรเจกต์หลัก ให้คัดลอกไฟล์ `.env.example` เป็น `.env`
     - `cp .env.example .env`
     - แก้ไขค่าในไฟล์ `.env` ให้ถูกต้อง (ข้อมูลเชื่อมต่อ DB, JWT secrets, Google OAuth credentials)
 
@@ -80,7 +81,7 @@
     ```bash
     npm run start:dev
     ```
-    เซิร์ฟเวอร์จะรันที่ `http://localhost:3001`
+    เซิร์ฟเวอร์จะรันที่ `http://localhost:3000`
 
 #### การตั้งค่า Frontend (React)
 
@@ -94,15 +95,13 @@
     ```
 3.  **ตั้งค่า Environment Variables:**
 
-    - ในโฟลเดอร์ `frontend` ให้คัดลอกไฟล์ `.env.example` เป็น `.env`
-    - `cp .env.example .env`
-    - (โดยปกติค่า default `VITE_API_URL=http://localhost:3001/api` จะถูกต้องอยู่แล้วถ้า backend รันที่ port 3001)
+    - Frontend จะโหลดค่า environment จากไฟล์ `.env` ที่โฟลเดอร์โปรเจกต์หลักโดยอัตโนมัติ (เช่น `VITE_API_URL=http://localhost:3000/api/v1`)
 
 4.  **รัน Frontend development server:**
     ```bash
-    npm start
+    npm run dev
     ```
-    แอปพลิเคชันจะเปิดที่ `http://localhost:3000`
+    แอปพลิเคชันจะเปิดที่ `http://localhost:5173`
 
 ### โฟลว์การยืนยันตัวตน (Authentication Flow)
 
