@@ -4,6 +4,7 @@ declare module '@nestjs/passport' {
     name?: U,
   ): { new (...args: any[]): any };
   export function AuthGuard(type?: any): any;
+  export class PassportModule {}
 }
 
 declare module '@nestjs/jwt' {
