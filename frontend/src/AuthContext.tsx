@@ -1,10 +1,16 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react";
 import api, {
   setAccessToken as setApiAccessToken,
   setRefreshToken as setApiRefreshToken,
   setLogoutHandler,
-} from './api';
+} from "./api";
 
 interface User {
   id?: string;
@@ -29,7 +35,9 @@ interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -37,12 +45,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
-      const res = await api.get<User>('/users/me');
+      const res = await api.get<User>("/users/me");
       setUser(res.data);
-      localStorage.setItem('user', JSON.stringify(res.data));
+      localStorage.setItem("user", JSON.stringify(res.data));
     } catch {
       setUser(null);
-      localStorage.removeItem('user');
+      localStorage.removeItem("user");
     }
   }, []);
 
@@ -50,18 +58,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessTokenState(token);
     setApiAccessToken(token);
     setApiRefreshToken(refreshToken);
-    localStorage.setItem('accessToken', token);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("refreshToken", refreshToken);
   };
 
   const login = async (email: string, password: string) => {
-    const res = await api.post<AuthResponse>('/auth/login', { email, password });
+    const res = await api.post<AuthResponse>("/auth/login", {
+      email,
+      password,
+    });
     setAuth(res.data);
     await refreshUser();
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const res = await api.post<AuthResponse>('/auth/register', {
+    const res = await api.post<AuthResponse>("/auth/register", {
       name,
       email,
       password,
@@ -75,20 +86,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessTokenState(null);
     setApiAccessToken(null);
     setApiRefreshToken(null);
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
   }, []);
 
   useEffect(() => {
-    const storedAccess = localStorage.getItem('accessToken');
-    const storedRefresh = localStorage.getItem('refreshToken');
+    const storedAccess = localStorage.getItem("accessToken");
+    const storedRefresh = localStorage.getItem("refreshToken");
     if (storedAccess && storedRefresh) {
       setAccessTokenState(storedAccess);
       setApiAccessToken(storedAccess);
       setApiRefreshToken(storedRefresh);
     }
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     } else if (storedAccess && storedRefresh) {

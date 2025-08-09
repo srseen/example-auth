@@ -66,8 +66,6 @@ export class AuthController {
     const tokens = await this.authService.login(req.user);
     res.cookie('Authentication', tokens.accessToken, { httpOnly: true });
     res.cookie('Refresh', tokens.refreshToken, { httpOnly: true });
-    return res.redirect(
-      this.configService.get<string>('FRONTEND_URL') ?? '/',
-    );
+    return res.redirect(this.configService.get<string>('FRONTEND_URL') ?? '/');
   }
 }

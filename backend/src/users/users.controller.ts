@@ -9,7 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Request, Express } from 'express';
+import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
