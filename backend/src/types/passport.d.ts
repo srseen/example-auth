@@ -3,10 +3,10 @@ declare module '@nestjs/passport' {
     strategy: T,
     name?: U,
   ): { new (...args: any[]): any };
+  export function AuthGuard(type?: any): any;
 }
 
 declare module '@nestjs/jwt' {
-
   export class JwtService {
     signAsync(payload: any, options?: any): Promise<string>;
   }
@@ -39,4 +39,14 @@ declare module 'passport-jwt' {
     fromAuthHeaderAsBearerToken(): (req: unknown) => string | null;
     fromBodyField(field: string): (req: unknown) => string | null;
   };
+}
+
+declare module 'passport-local' {
+  export interface IStrategyOptions {
+    usernameField?: string;
+    passwordField?: string;
+  }
+  export class Strategy {
+    constructor(options: IStrategyOptions, verify: any);
+  }
 }
