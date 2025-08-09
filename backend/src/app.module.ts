@@ -11,7 +11,7 @@ import { TasksModule } from './tasks/tasks.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['../.env', '.env'],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
