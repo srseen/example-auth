@@ -4,4 +4,5 @@ export class CreateUserDto {
   firstName?: string;
   lastName?: string;
   profilePictureUrl?: string;
+  googleId?: string;
 }
