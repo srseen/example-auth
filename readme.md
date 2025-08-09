@@ -1,125 +1,125 @@
-# Template Fullstack: React + NestJS + PostgreSQL (Docker Ready)
+## Fullstack Authentication
 
-โครงสร้างโปรเจกต์นี้รวม **Frontend** (React + Vite), **Backend** (NestJS + TypeORM) และ **Database** (PostgreSQL) พร้อมใช้งานด้วย Docker Compose
+ระบบ Authentication สมัยใหม่สำหรับเรียนรู้ Full Stack Development ด้วย React, NestJS, และ PostgreSQL
 
-## โครงสร้างไฟล์
+### เทคสแตค (Tech Stack)
 
-```
-template-fullstack-react-nest-postgresql/
-├─] .env (ignored)
-├── .env.example
-├── .gitignore
-├── backend/
-│   ├── .dockerignore
-│   ├── .gitignore
-│   ├── .prettierrc
-│   ├─] dist/ (ignored)
-│   ├── Dockerfile
-│   ├── eslint.config.mjs
-│   ├── nest-cli.json
-│   ├─] node_modules/ (ignored)
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── README.md
-│   ├── src/
-│   │   ├── app.controller.spec.ts
-│   │   ├── app.controller.ts
-│   │   ├── app.module.ts
-│   │   ├── app.service.ts
-│   │   └── main.ts
-│   ├── test/
-│   │   ├── app.e2e-spec.ts
-│   │   └── jest-e2e.json
-│   ├── tsconfig.build.json
-│   └── tsconfig.json
-├── docker-compose.yml
-├── frontend/
-│   ├── .dockerignore
-│   ├── .gitignore
-│   ├── Dockerfile
-│   ├── eslint.config.js
-│   ├── index.html
-│   ├─] node_modules/ (ignored)
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── public/
-│   │   └── vite.svg
-│   ├── README.md
-│   ├── src/
-│   │   ├── App.tsx
-│   │   ├── assets/
-│   │   │   └── react.svg
-│   │   ├── index.css
-│   │   ├── main.tsx
-│   │   └── vite-env.d.ts
-│   ├── tsconfig.app.json
-│   ├── tsconfig.json
-│   ├── tsconfig.node.json
-│   └── vite.config.ts
-└── readme.md
-```
+- **Frontend:** React, TypeScript, React Router, Axios, Context API, NextUI, Tailwind CSS
+- **Backend:** NestJS, TypeORM, Passport.js, JWT
+- **Database:** PostgreSQL
+- **Authentication:** Email/Password, Google Social Login, JWT (Access & Refresh Tokens)
 
-## 1. เตรียม `.env`
+### ฟีเจอร์หลัก (Features)
 
-คัดลอกไฟล์ `.env.example` ไปเป็น `.env` และแก้ไขค่าตามต้องการ
+- **Authentication:**
+  - สมัครสมาชิก / เข้าสู่ระบบด้วย Email-Password
+  - เข้าสู่ระบบด้วยบัญชี Google (Social Login)
+  - ระบบ JWT และ Refresh Token เพื่อรักษา session
+- **Task Management:**
+  - เพิ่ม, แก้ไข, ลบ, และดูรายการงาน
+  - จัดการได้เฉพาะงานของตนเอง (Authorization)
+- **User Profile:**
+  - ดูและอัปเดตข้อมูลส่วนตัว
 
-### ตัวอย่าง .env:
+### สิ่งที่ควรรู้เกี่ยวกับระบบ Authentication
 
-```
-# Environment variables for PostgreSQL configuration
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=admin
-POSTGRES_DB=mydatabase
+- รหัสผ่านของผู้ใช้จะถูก Hash ด้วย `bcrypt` ก่อนบันทึกลงฐานข้อมูลเพื่อความปลอดภัย
+- ใช้กลยุทธ์จาก `Passport.js` ได้แก่ Local, JWT และ Google OAuth 2.0 สำหรับยืนยันตัวตน
+- Backend สร้าง **Access Token** และ **Refresh Token** โดย Refresh Token จะถูกเก็บแบบ hash ในฐานข้อมูลเพื่อใช้สร้างคู่ใหม่เมื่อ Access Token หมดอายุ
+- ฝั่ง Frontend จัดเก็บ tokens ใน `localStorage` และแนบ Access Token ไปกับทุกคำขอผ่าน Axios interceptor
+- เมื่อ Access Token หมดอายุ interceptor จะใช้ Refresh Token ขอ Access Token ใหม่โดยอัตโนมัติ ทำให้ผู้ใช้ไม่ต้องล็อกอินซ้ำบ่อยๆ
 
-# Environment variables for application settings
-PORT=3000
+### การติดตั้งและเริ่มใช้งาน (Getting Started)
 
-# Environment variables for JWT configuration
-JWT_ACCESS_TOKEN_SECRET=your_access_token_secret
-JWT_ACCESS_TOKEN_EXPIRATION_TIME=1h
-JWT_REFRESH_TOKEN_SECRET=your_refresh_token_secret
-JWT_REFRESH_TOKEN_EXPIRATION_TIME=7d
+#### ข้อกำหนดเบื้องต้น (Prerequisites)
 
-# CORS Environment Variables
-FRONTEND_URL=http://localhost:5173
+- Node.js (v18+)
+- npm หรือ yarn
+- PostgreSQL
+- Git
 
-# Frontend Environment Variables
-VITE_API_URL=http://localhost:3000/api/v1
-```
+#### รันด้วย Docker Compose (แนะนำสำหรับ Dev)
 
-`หมายเหตุ: POSTGRES_HOST ต้องเป็นชื่อ service ของ postgres ใน docker-compose (postgres)`
+1. **คัดลอกไฟล์ Environment:**
+   ```bash
+   cp .env.example .env
+   ```
+2. **เริ่มระบบทั้งหมด:**
+   ```bash
+   docker compose up --build
+   ```
+   คำสั่งนี้จะสตาร์ตบริการ `postgres` (ฐานข้อมูล), `backend` (NestJS API ที่ `http://localhost:3000`) และ `frontend` (Vite app ที่ `http://localhost:5173`)
 
-## 2. รันด้วย Docker Compose
+#### การตั้งค่า Backend (NestJS)
 
-```
-docker compose up --build
-```
+1.  **Clone a project:**
+    ```bash
+    # Replace with your git clone command
+    git clone <repository_url>
+    cd mini-task-manager
+    ```
+2.  **เข้าไปที่โฟลเดอร์ backend:**
+    ```bash
+    cd backend
+    ```
+3.  **ติดตั้ง dependencies:**
+    ```bash
+    npm install
+    ```
+4.  **สร้างฐานข้อมูล PostgreSQL:**
 
-Docker จะรัน 3 services:
+    - สร้าง database ชื่อ `mini_task_manager`
 
-- frontend_app → React (Vite) ที่ http://localhost:5173
+5.  **ตั้งค่า Environment Variables:**
 
-- backend_api → NestJS API ที่ http://localhost:3000
+    - ในโฟลเดอร์ `backend` ให้คัดลอกไฟล์ `.env.example` เป็น `.env`
+    - `cp .env.example .env`
+    - แก้ไขค่าในไฟล์ `.env` ให้ถูกต้อง (ข้อมูลเชื่อมต่อ DB, JWT secrets, Google OAuth credentials)
 
-- postgres → PostgreSQL Database (port 5432)
+6.  **รัน Backend server:**
+    ```bash
+    npm run start:dev
+    ```
+    เซิร์ฟเวอร์จะรันที่ `http://localhost:3001`
 
-## 3. คำสั่งที่ใช้บ่อย
+#### การตั้งค่า Frontend (React)
 
-```
-# สร้าง image
-docker compose build --no-cache
+1.  **เข้าไปที่โฟลเดอร์ frontend:**
+    ```bash
+    cd ../frontend
+    ```
+2.  **ติดตั้ง dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **ตั้งค่า Environment Variables:**
 
-# สร้างและรัน container
-docker compose up --build
+    - ในโฟลเดอร์ `frontend` ให้คัดลอกไฟล์ `.env.example` เป็น `.env`
+    - `cp .env.example .env`
+    - (โดยปกติค่า default `VITE_API_URL=http://localhost:3001/api` จะถูกต้องอยู่แล้วถ้า backend รันที่ port 3001)
 
-# รันแบบ background
-docker compose up -d
+4.  **รัน Frontend development server:**
+    ```bash
+    npm start
+    ```
+    แอปพลิเคชันจะเปิดที่ `http://localhost:3000`
 
-# หยุด service
-docker compose down
+### โฟลว์การยืนยันตัวตน (Authentication Flow)
 
-# ลบ volume (เช่น ลบข้อมูล database)
-docker compose down -v
-```
+1.  **Email/Password:** ผู้ใช้กรอกข้อมูล -> Frontend ส่งไปที่ Backend -> Backend ตรวจสอบและสร้าง Access/Refresh Token -> Frontend จัดเก็บ Token และนำทางผู้ใช้
+2.  **Google Login:** ผู้ใช้คลิกปุ่ม -> Frontend redirect ไปยัง Backend (`/api/auth/google`) -> Backend redirect ไปยัง Google -> ผู้ใช้ยืนยันตัวตนกับ Google -> Google redirect กลับมาที่ Backend (`/api/auth/google/callback`) -> Backend สร้าง/ค้นหาผู้ใช้ และสร้าง Tokens -> Backend redirect กลับมาที่ Frontend พร้อม Tokens ใน query string -> Frontend จัดเก็บ Token และนำทางผู้ใช้
+3.  **Token Refresh:** เมื่อ Access Token หมดอายุ, Axios interceptor จะส่ง Refresh Token ไปยัง Backend เพื่อขอ Access Token ใหม่โดยอัตโนมัติ ทำให้ผู้ใช้ไม่ต้องล็อกอินใหม่บ่อยๆ
+
+### การทดสอบ (Testing)
+
+- **Backend:**
+  ```bash
+  cd backend
+  npm test
+  ```
+- **Frontend:**
+  ```bash
+  cd frontend
+  npm test
+  ```
+  การทดสอบใช้ Jest และ Vitest เพื่อครอบคลุมฟังก์ชัน authentication หลักทั้งสองฝั่ง
