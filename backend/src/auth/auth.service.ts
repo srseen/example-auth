@@ -1,10 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
+import { EmailVerification } from './entities/email-verification.entity';
+import { MailService } from './mail.service';
+import { randomBytes, createHash } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +22,9 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @InjectRepository(EmailVerification)
+    private readonly emailVerificationRepo: Repository<EmailVerification>,
+    private readonly mailService: MailService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User | null> {
@@ -22,6 +35,9 @@ export class AuthService {
     const isPasswordMatching = await bcrypt.compare(pass, user.password);
     if (!isPasswordMatching) {
       return null;
+    }
+    if (!user.isEmailVerified) {
+      throw new ForbiddenException('Please verify your email');
     }
     return user;
   }
@@ -34,7 +50,47 @@ export class AuthService {
 
   async register(createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
-    return this.login(user);
+    await this.sendVerification(user);
+    return {
+      message: 'Registration successful. Please verify your email.',
+    };
+  }
+
+  private async sendVerification(user: User) {
+    const token = randomBytes(32).toString('hex');
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    await this.emailVerificationRepo.save({ token: tokenHash, expiresAt, user });
+    await this.mailService.sendVerificationEmail(user.email, token);
+  }
+
+  async verifyEmail(email: string, token: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Invalid token');
+    }
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+    const record = await this.emailVerificationRepo.findOne({
+      where: { user: { id: user.id }, token: tokenHash, used: false },
+    });
+    if (!record || record.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+    await this.usersService.update(user.id, { isEmailVerified: true });
+    record.used = true;
+    await this.emailVerificationRepo.save(record);
+  }
+
+  async resendVerification(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user || user.isEmailVerified) {
+      return;
+    }
+    await this.emailVerificationRepo.update(
+      { user: { id: user.id }, used: false },
+      { used: true },
+    );
+    await this.sendVerification(user);
   }
 
   async getNewTokens(userId: string, refreshToken: string) {
