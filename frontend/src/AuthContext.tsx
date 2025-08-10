@@ -77,8 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
+    const [firstName, ...rest] = name.trim().split(" ");
+    const lastName = rest.join(" ") || "";
     const res = await api.post<AuthResponse>("/auth/register", {
-      name,
+      firstName,
+      lastName,
       email,
       password,
     });
