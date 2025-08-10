@@ -6,16 +6,25 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import GoogleCallbackPage from './pages/GoogleCallbackPage';
 import VerifySuccessPage from './pages/VerifySuccessPage';
+import Layout from './components/Layout';
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
-      <Route path="/verify/success" element={<VerifySuccessPage />} />
-      <Route path="/" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-      <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+      <Route element={<Layout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+        <Route path="/verify/success" element={<VerifySuccessPage />} />
+        <Route
+          path="/"
+          element={<PrivateRoute><DashboardPage /></PrivateRoute>}
+        />
+        <Route
+          path="/profile"
+          element={<PrivateRoute><ProfilePage /></PrivateRoute>}
+        />
+      </Route>
     </Routes>
   );
 }

@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../useAuth";
 import type { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const { login, resendVerification } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,6 +19,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       setShowResend(false);
+      navigate("/");
     } catch (err) {
       const axiosErr = err as AxiosError;
       if (axiosErr.response?.status === 403) {
