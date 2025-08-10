@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../useAuth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import type { AxiosError } from "axios";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, login } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,9 +15,20 @@ export default function RegisterPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setMessage("");
     try {
       await register(name, email, password);
-      setMessage("กรุณายืนยันอีเมลในกล่องเข้า");
+      try {
+        await login(email, password);
+        navigate("/");
+      } catch (err) {
+        const axiosErr = err as AxiosError;
+        if (axiosErr.response?.status === 403) {
+          setMessage("กรุณายืนยันอีเมลในกล่องเข้า");
+        } else {
+          setError((err as Error).message);
+        }
+      }
     } catch (err) {
       setError((err as Error).message);
     }
