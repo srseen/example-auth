@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Task } from '../../tasks/entities/task.entity';
+import { EmailVerification } from '../../auth/entities/email-verification.entity';
 
 @Entity()
 export class User {
@@ -36,6 +37,12 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @OneToMany(() => EmailVerification, (verification) => verification.user)
+  emailVerifications: EmailVerification[];
 
   @BeforeInsert()
   async hashPassword() {

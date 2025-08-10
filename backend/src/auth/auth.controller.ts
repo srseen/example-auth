@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -26,6 +27,24 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
+  }
+
+  @Get('verify-email')
+  async verifyEmail(
+    @Query('token') token: string,
+    @Query('email') email: string,
+    @Res() res: Response,
+  ) {
+    await this.authService.verifyEmail(email, token);
+    return res.redirect(
+      `${this.configService.get<string>('FRONTEND_URL')}/verify/success`,
+    );
+  }
+
+  @Post('resend-verification')
+  async resendVerification(@Body('email') email: string) {
+    await this.authService.resendVerification(email);
+    return { message: 'Verification email sent' };
   }
 
   @UseGuards(LocalAuthGuard)

@@ -26,6 +26,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
   logout: () => void;
   setAuth: (data: AuthResponse) => void;
   refreshUser: () => Promise<void>;
@@ -79,14 +80,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     const [firstName, ...rest] = name.trim().split(" ");
     const lastName = rest.join(" ") || "";
-    const res = await api.post<AuthResponse>("/auth/register", {
+    await api.post("/auth/register", {
       firstName,
       lastName,
       email,
       password,
     });
-    setAuth(res.data);
-    await refreshUser();
+  };
+
+  const resendVerification = async (email: string) => {
+    await api.post("/auth/resend-verification", { email });
   };
 
   const logout = useCallback(() => {
@@ -124,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!accessToken,
         login,
         register,
+        resendVerification,
         logout,
         setAuth,
         refreshUser,

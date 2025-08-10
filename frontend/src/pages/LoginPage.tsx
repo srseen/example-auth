@@ -1,17 +1,39 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../useAuth";
+import type { AxiosError } from "axios";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, resendVerification } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [showResend, setShowResend] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     try {
       await login(email, password);
+      setShowResend(false);
+    } catch (err) {
+      const axiosErr = err as AxiosError;
+      if (axiosErr.response?.status === 403) {
+        setError("Please verify your email");
+        setShowResend(true);
+      } else {
+        setError((err as Error).message);
+      }
+    }
+  };
+
+  const handleResend = async () => {
+    setError("");
+    setInfo("");
+    try {
+      await resendVerification(email);
+      setInfo("Verification email sent");
     } catch (err) {
       setError((err as Error).message);
     }
@@ -26,6 +48,11 @@ export default function LoginPage() {
         {error && (
           <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-sm">
             {error}
+          </p>
+        )}
+        {info && (
+          <p className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 text-sm">
+            {info}
           </p>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,6 +96,15 @@ export default function LoginPage() {
           >
             Login
           </button>
+          {showResend && (
+            <button
+              type="button"
+              onClick={handleResend}
+              className="w-full mt-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            >
+              Resend verification
+            </button>
+          )}
         </form>
         <div className="mt-6 text-center">
           <a
