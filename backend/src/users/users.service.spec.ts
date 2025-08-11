@@ -38,6 +38,8 @@ describe('UsersService', () => {
 
     service = module.get<UsersService>(UsersService);
     jest.clearAllMocks();
+    compareMock.mockResolvedValue(true);
+    hashMock.mockResolvedValue('hashed');
   });
 
   it('should be defined', () => {

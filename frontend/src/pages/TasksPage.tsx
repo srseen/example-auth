@@ -1,11 +1,12 @@
-import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import {
   getTasks,
   createTask,
   updateTask,
   deleteTask,
-  Task,
 } from '../api/tasks';
+import type { Task } from '../api/tasks';
 
 const statusFlow: Task['status'][] = ['TODO', 'IN_PROGRESS', 'DONE'];
 
@@ -40,7 +41,7 @@ export default function TasksPage() {
     validateField(name, value);
   };
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -55,11 +56,11 @@ export default function TasksPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, sortOrder]);
 
   useEffect(() => {
-    load();
-  }, [statusFilter, sortOrder]);
+    void load();
+  }, [load]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
