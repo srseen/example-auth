@@ -4,6 +4,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Task } from '../../tasks/entities/task.entity';
@@ -17,8 +19,8 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ nullable: true })
+  password: string | null;
 
   @Column()
   firstName: string;
@@ -44,8 +46,16 @@ export class User {
   @OneToMany(() => EmailVerification, (verification) => verification.user)
   emailVerifications: EmailVerification[];
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
+    if (this.password) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
   }
 }

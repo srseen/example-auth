@@ -4,7 +4,7 @@ import { useAuth } from "../useAuth";
 
 export default function GoogleCallbackPage() {
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
+  const { setAuth, refreshUser } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -14,9 +14,10 @@ export default function GoogleCallbackPage() {
     const user = userParam ? JSON.parse(userParam) : undefined;
     if (accessToken && refreshToken) {
       setAuth({ accessToken, refreshToken, user });
-      navigate("/");
+      void refreshUser();
+      navigate("/dashboard");
     }
-  }, [setAuth, navigate]);
+  }, [setAuth, refreshUser, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
