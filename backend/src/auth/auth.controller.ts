@@ -97,6 +97,8 @@ export class AuthController {
       refreshToken: tokens.refreshToken,
       user: userParam,
     });
-    return res.redirect(`${frontendUrl}/auth/google/callback?${params.toString()}`);
+    return res.redirect(
+      `${frontendUrl}/auth/google/callback?${params.toString()}`,
+    );
   }
 }
