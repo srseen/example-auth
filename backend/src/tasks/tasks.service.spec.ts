@@ -56,7 +56,9 @@ describe('TasksService', () => {
       };
       repository.findOne.mockResolvedValue(task);
       repository.save.mockImplementation(async (t) => t);
-      await service.update('1', 'u1', 'user', { status: TaskStatus.IN_PROGRESS });
+      await service.update('1', 'u1', 'user', {
+        status: TaskStatus.IN_PROGRESS,
+      });
       expect(task.status).toBe(TaskStatus.IN_PROGRESS);
     });
   });

@@ -6,7 +6,10 @@ import { UsersService } from '../../users/users.service';
 import { User } from '../../users/entities/user.entity';
 
 @Injectable()
-export class FacebookStrategy extends PassportStrategy(OAuth2Strategy, 'facebook') {
+export class FacebookStrategy extends PassportStrategy(
+  OAuth2Strategy,
+  'facebook',
+) {
   constructor(
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,

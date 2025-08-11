@@ -34,7 +34,8 @@ async function bootstrap() {
   // Optional Swagger documentation if the module is installed
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const swagger = require('@nestjs/swagger') as typeof import('@nestjs/swagger');
+    const swagger =
+      require('@nestjs/swagger') as typeof import('@nestjs/swagger');
     const config = new swagger.DocumentBuilder()
       .setTitle('Mini Task Manager API')
       .setDescription('API documentation for the Mini Task Manager')

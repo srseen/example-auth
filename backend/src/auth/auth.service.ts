@@ -49,7 +49,10 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateUserDto) {
-    const user = await this.usersService.create({ role: 'user', ...createUserDto });
+    const user = await this.usersService.create({
+      role: 'user',
+      ...createUserDto,
+    });
     await this.sendVerification(user);
     return {
       message: 'Registration successful. Please verify your email.',

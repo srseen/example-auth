@@ -32,7 +32,9 @@ describe('FacebookStrategy', () => {
   it('creates a new user when none exists', async () => {
     (usersService.findByFacebookId as jest.Mock).mockResolvedValue(null);
     (usersService.findByEmail as jest.Mock).mockResolvedValue(null);
-    (usersService.create as jest.Mock).mockImplementation(async (data: Partial<User>) => ({ id: '1', ...data }));
+    (usersService.create as jest.Mock).mockImplementation(
+      async (data: Partial<User>) => ({ id: '1', ...data }),
+    );
     const g = global as typeof globalThis & { fetch: jest.Mock };
     g.fetch.mockResolvedValue({
       ok: true,
@@ -45,7 +47,11 @@ describe('FacebookStrategy', () => {
       }),
     });
 
-    const user = await strategy.validate('token', '', {} as Record<string, unknown>);
+    const user = await strategy.validate(
+      'token',
+      '',
+      {} as Record<string, unknown>,
+    );
     expect(user.facebookId).toBe('fb123');
     expect(usersService.create).toHaveBeenCalled();
   });
@@ -72,7 +78,11 @@ describe('FacebookStrategy', () => {
       }),
     });
 
-    const user = await strategy.validate('token', '', {} as Record<string, unknown>);
+    const user = await strategy.validate(
+      'token',
+      '',
+      {} as Record<string, unknown>,
+    );
     expect(usersService.update).toHaveBeenCalledWith('1', {
       facebookId: 'fb123',
       profilePictureUrl: 'pic',

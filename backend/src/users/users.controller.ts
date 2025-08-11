@@ -60,7 +60,9 @@ export class UsersController {
           cb(null, uniqueName);
         },
       }),
-      limits: { fileSize: Number(process.env.UPLOAD_MAX_FILE_SIZE) || 1024 * 1024 },
+      limits: {
+        fileSize: Number(process.env.UPLOAD_MAX_FILE_SIZE) || 1024 * 1024,
+      },
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
           cb(new BadRequestException('Only image files are allowed'), false);

@@ -54,11 +54,11 @@ describe('UsersController', () => {
   });
 
   it('deletes account', async () => {
-    await controller.deleteMe(
-      { user: { id: '1', role: 'user' } } as unknown as Request & {
-        user: { id: string; role: string };
-      },
-    );
+    await controller.deleteMe({
+      user: { id: '1', role: 'user' },
+    } as unknown as Request & {
+      user: { id: string; role: string };
+    });
     expect(service.remove).toHaveBeenCalledWith('1');
   });
 });

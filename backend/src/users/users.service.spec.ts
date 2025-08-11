@@ -55,9 +55,7 @@ describe('UsersService', () => {
   it('throws when current password is invalid', async () => {
     repo.findOne.mockResolvedValue({ id: '1', password: 'oldhash' });
     compareMock.mockResolvedValueOnce(false);
-    await expect(
-      service.updatePassword('1', 'bad', 'new'),
-    ).rejects.toThrow();
+    await expect(service.updatePassword('1', 'bad', 'new')).rejects.toThrow();
   });
 
   it('removes user', async () => {

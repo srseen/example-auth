@@ -45,8 +45,7 @@ export class TasksService {
 
   findOneForUser(id: string, userId: string, role: string) {
     return this.tasksRepository.findOne({
-      where:
-        role === 'admin' ? { id } : { id, user: { id: userId } },
+      where: role === 'admin' ? { id } : { id, user: { id: userId } },
     });
   }
 
@@ -60,10 +59,7 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
-    if (
-      updateTaskDto.status &&
-      updateTaskDto.status !== task.status
-    ) {
+    if (updateTaskDto.status && updateTaskDto.status !== task.status) {
       // Enforce a strict Todo -> In Progress -> Done progression so tasks
       // cannot skip directly from Todo to Done or regress in the workflow.
       const order = [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE];

@@ -119,9 +119,17 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
-    const { id, email, firstName, lastName, profilePictureUrl, role } = req.user;
+    const { id, email, firstName, lastName, profilePictureUrl, role } =
+      req.user;
     const userParam = encodeURIComponent(
-      JSON.stringify({ id, email, firstName, lastName, profilePictureUrl, role }),
+      JSON.stringify({
+        id,
+        email,
+        firstName,
+        lastName,
+        profilePictureUrl,
+        role,
+      }),
     );
     const params = new URLSearchParams({
       accessToken: tokens.accessToken,
@@ -151,9 +159,17 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
-    const { id, email, firstName, lastName, profilePictureUrl, role } = req.user;
+    const { id, email, firstName, lastName, profilePictureUrl, role } =
+      req.user;
     const userParam = encodeURIComponent(
-      JSON.stringify({ id, email, firstName, lastName, profilePictureUrl, role }),
+      JSON.stringify({
+        id,
+        email,
+        firstName,
+        lastName,
+        profilePictureUrl,
+        role,
+      }),
     );
     const params = new URLSearchParams({
       accessToken: tokens.accessToken,

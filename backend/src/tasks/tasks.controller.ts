@@ -54,7 +54,11 @@ export class TasksController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: Request & { user: { id: string; role: string } },
   ) {
-    const task = await this.tasksService.findOneForUser(id, req.user.id, req.user.role);
+    const task = await this.tasksService.findOneForUser(
+      id,
+      req.user.id,
+      req.user.role,
+    );
     if (!task) {
       throw new NotFoundException();
     }
@@ -67,7 +71,12 @@ export class TasksController {
     @Body() updateTaskDto: UpdateTaskDto,
     @Req() req: Request & { user: { id: string; role: string } },
   ) {
-    return this.tasksService.update(id, req.user.id, req.user.role, updateTaskDto);
+    return this.tasksService.update(
+      id,
+      req.user.id,
+      req.user.role,
+      updateTaskDto,
+    );
   }
 
   @Delete(':id')
