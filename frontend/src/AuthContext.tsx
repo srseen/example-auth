@@ -8,7 +8,6 @@ import {
 } from "react";
 import api, {
   setAccessToken as setApiAccessToken,
-  setRefreshToken as setApiRefreshToken,
   setLogoutHandler,
 } from "./api";
 
@@ -18,6 +17,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   profilePictureUrl?: string;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -34,7 +34,6 @@ interface AuthContextType {
 
 interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
   user?: User;
 }
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -56,12 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const setAuth = ({ accessToken: token, refreshToken, user }: AuthResponse) => {
+  const setAuth = ({ accessToken: token, user }: AuthResponse) => {
     setAccessTokenState(token);
     setApiAccessToken(token);
-    setApiRefreshToken(refreshToken);
     localStorage.setItem("accessToken", token);
-    localStorage.setItem("refreshToken", refreshToken);
     if (user) {
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
@@ -101,24 +98,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setAccessTokenState(null);
     setApiAccessToken(null);
-    setApiRefreshToken(null);
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
   }, []);
 
   useEffect(() => {
     const storedAccess = localStorage.getItem("accessToken");
-    const storedRefresh = localStorage.getItem("refreshToken");
-    if (storedAccess && storedRefresh) {
+    if (storedAccess) {
       setAccessTokenState(storedAccess);
       setApiAccessToken(storedAccess);
-      setApiRefreshToken(storedRefresh);
     }
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-    } else if (storedAccess && storedRefresh) {
+    } else {
       void refreshUser();
     }
     setLogoutHandler(logout);

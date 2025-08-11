@@ -50,23 +50,47 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req: Request & { user: User }) {
-    return this.authService.login(req.user);
+  async login(
+    @Req() req: Request & { user: User },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const tokens = await this.authService.login(req.user);
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+    return { accessToken: tokens.accessToken };
   }
 
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   async refresh(
     @Req() req: Request & { user: { id: string; refreshToken: string } },
+    @Res({ passthrough: true }) res: Response,
   ) {
     const { id, refreshToken } = req.user;
-    return this.authService.getNewTokens(id, refreshToken);
+    const tokens = await this.authService.getNewTokens(id, refreshToken);
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+    return { accessToken: tokens.accessToken };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Req() req: Request & { user: { id: string } }) {
+  async logout(
+    @Req() req: Request & { user: { id: string } },
+    @Res({ passthrough: true }) res: Response,
+  ) {
     await this.authService.logout(req.user.id);
+    res.clearCookie('refreshToken');
     return { message: 'Logged out' };
   }
 
@@ -88,17 +112,55 @@ export class AuthController {
   ) {
     const tokens = await this.authService.login(req.user);
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? '';
-    const { id, email, firstName, lastName, profilePictureUrl } = req.user;
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+    const { id, email, firstName, lastName, profilePictureUrl, role } = req.user;
     const userParam = encodeURIComponent(
-      JSON.stringify({ id, email, firstName, lastName, profilePictureUrl }),
+      JSON.stringify({ id, email, firstName, lastName, profilePictureUrl, role }),
     );
     const params = new URLSearchParams({
       accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
       user: userParam,
     });
     return res.redirect(
       `${frontendUrl}/auth/google/callback?${params.toString()}`,
+    );
+  }
+
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  async facebookAuth() {}
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  async facebookAuthCallback(
+    @Req() req: Request & { user: User },
+    @Res() res: Response,
+  ) {
+    const tokens = await this.authService.login(req.user);
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? '';
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+    const { id, email, firstName, lastName, profilePictureUrl, role } = req.user;
+    const userParam = encodeURIComponent(
+      JSON.stringify({ id, email, firstName, lastName, profilePictureUrl, role }),
+    );
+    const params = new URLSearchParams({
+      accessToken: tokens.accessToken,
+      user: userParam,
+    });
+    return res.redirect(
+      `${frontendUrl}/auth/facebook/callback?${params.toString()}`,
     );
   }
 }

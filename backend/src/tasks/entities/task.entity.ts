@@ -18,6 +18,12 @@ export class Task {
   @Column({ nullable: true })
   description?: string;
 
+  @Column({ type: 'timestamp' })
+  dueDate: Date;
+
+  @Column('simple-array', { nullable: true })
+  tags?: string[];
+
   @Column({ type: 'enum', enum: TaskStatus, default: TaskStatus.TODO })
   status: TaskStatus;
 

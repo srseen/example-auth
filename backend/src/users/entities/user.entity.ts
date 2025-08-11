@@ -34,6 +34,12 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
   googleId: string | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
+  facebookId: string | null;
+
+  @Column({ type: 'varchar', length: 20, default: 'user' })
+  role: string;
+
   @Column({ type: 'text', nullable: true, select: false })
   currentHashedRefreshToken: string | null;
 

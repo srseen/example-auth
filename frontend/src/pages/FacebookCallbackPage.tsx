@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../useAuth";
 
-export default function GoogleCallbackPage() {
+export default function FacebookCallbackPage() {
   const navigate = useNavigate();
   const { setAuth, refreshUser } = useAuth();
 
@@ -21,7 +21,7 @@ export default function GoogleCallbackPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center text-lg font-medium text-gray-700">
-        Authenticating with Google...
+        Authenticating with Facebook...
       </div>
     </div>
   );
