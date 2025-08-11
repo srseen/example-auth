@@ -1,34 +1,21 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../useAuth";
 import { Link, useNavigate } from "react-router-dom";
-import type { AxiosError } from "axios";
 
 export default function RegisterPage() {
-  const { register, login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    setMessage("");
     try {
       await register(name, email, password);
-      try {
-        await login(email, password);
-        navigate("/");
-      } catch (err) {
-        const axiosErr = err as AxiosError;
-        if (axiosErr.response?.status === 403) {
-          setMessage("กรุณายืนยันอีเมลในกล่องเข้า");
-        } else {
-          setError((err as Error).message);
-        }
-      }
+      navigate(`/verify/email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError((err as Error).message);
     }
@@ -43,11 +30,6 @@ export default function RegisterPage() {
         {error && (
           <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-sm">
             {error}
-          </p>
-        )}
-        {message && (
-          <p className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 text-sm">
-            {message}
           </p>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
