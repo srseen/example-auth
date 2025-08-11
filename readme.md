@@ -122,3 +122,20 @@
   npm test
   ```
   การทดสอบใช้ Jest และ Vitest เพื่อครอบคลุมฟังก์ชัน authentication หลักทั้งสองฝั่ง
+
+### Database Migrations & Seed
+
+จากภายในโฟลเดอร์ `backend` สามารถรัน migration และ seed ได้ดังนี้
+
+```bash
+npm run migration:run
+npm run seed
+```
+
+### API Documentation
+
+หากติดตั้งโมดูล `@nestjs/swagger` แล้ว เอกสาร API จะพร้อมใช้งานที่ `/api/docs` เมื่อรันเซิร์ฟเวอร์
+
+### Deployment
+
+คำแนะนำแบบละเอียดสำหรับการ deploy มีอยู่ในไฟล์ `DEPLOYMENT.md`

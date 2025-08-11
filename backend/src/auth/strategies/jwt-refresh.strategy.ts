@@ -16,14 +16,16 @@ export class JwtRefreshStrategy extends PassportStrategy(
 ) {
   constructor(private readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => req.cookies?.refreshToken,
+      ]),
       secretOrKey: configService.get<string>('JWT_REFRESH_TOKEN_SECRET') ?? '',
       passReqToCallback: true,
     });
   }
 
   validate(req: Request, payload: RefreshPayload) {
-    const refreshToken = req.get('authorization')?.replace('Bearer ', '');
+    const refreshToken = req.cookies?.refreshToken ?? '';
     return { id: payload.sub, email: payload.email, refreshToken };
   }
 }

@@ -16,18 +16,7 @@ export default function RegisterPage() {
     setError("");
     try {
       await register(name, email, password);
-      navigate(`/verify/email?email=${encodeURIComponent(email)}`);
-      try {
-        await login(email, password);
-        navigate("/dashboard");
-      } catch (err) {
-        const axiosErr = err as AxiosError;
-        if (axiosErr.response?.status === 403) {
-          setMessage("กรุณายืนยันอีเมลในกล่องเข้า");
-        } else {
-          setError((err as Error).message);
-        }
-      }
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError((err as Error).message);
     }

@@ -9,15 +9,10 @@ import type {
 } from 'axios';
 
 let accessToken: string | null = null;
-let refreshToken: string | null = null;
 let logoutHandler: (() => void | Promise<void>) | null = null;
 
 export const setAccessToken = (token: string | null) => {
   accessToken = token;
-};
-
-export const setRefreshToken = (token: string | null) => {
-  refreshToken = token;
 };
 
 export const setLogoutHandler = (fn: () => void | Promise<void>) => {
@@ -53,15 +48,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshResponse = await api.post<{ accessToken: string }>(
-          '/auth/refresh',
-          undefined,
-          {
-            headers: {
-              Authorization: refreshToken
-                ? `Bearer ${refreshToken}`
-                : undefined,
-            },
-          }
+          '/auth/refresh'
         );
         const newToken = refreshResponse.data.accessToken;
         setAccessToken(newToken);

@@ -19,7 +19,7 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link to="/dashboard" className="text-xl font-bold">
+            <Link to="/" className="text-xl font-bold">
               Example Auth
             </Link>
           </div>
@@ -33,10 +33,22 @@ export default function Navbar() {
                   Dashboard
                 </Link>
                 <Link
+                  to="/tasks"
+                  className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-700"
+                >
+                  Tasks
+                </Link>
+                <Link
                   to="/profile"
                   className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-700"
                 >
                   Profile
+                </Link>
+                <Link
+                  to="/settings"
+                  className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-700"
+                >
+                  Settings
                 </Link>
                 <button
                   onClick={() => void handleLogout()}
@@ -107,11 +119,25 @@ export default function Navbar() {
                 Dashboard
               </Link>
               <Link
+                to="/tasks"
+                className="block rounded-md px-3 py-2 text-base font-medium hover:bg-gray-700"
+                onClick={() => setMenuOpen(false)}
+              >
+                Tasks
+              </Link>
+              <Link
                 to="/profile"
                 className="block rounded-md px-3 py-2 text-base font-medium hover:bg-gray-700"
                 onClick={() => setMenuOpen(false)}
               >
                 Profile
+              </Link>
+              <Link
+                to="/settings"
+                className="block rounded-md px-3 py-2 text-base font-medium hover:bg-gray-700"
+                onClick={() => setMenuOpen(false)}
+              >
+                Settings
               </Link>
               <button
                 onClick={() => {

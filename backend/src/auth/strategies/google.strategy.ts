@@ -32,7 +32,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     }
 
     if (!user) {
-      const newUser: any = {
+      const newUser: Partial<User> = {
         email: email ?? '',
         firstName: profile.name?.givenName,
         lastName: profile.name?.familyName,

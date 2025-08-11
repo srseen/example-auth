@@ -9,9 +9,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { FacebookStrategy } from './strategies/facebook.strategy';
 import { AuthController } from './auth.controller';
 import { EmailVerification } from './entities/email-verification.entity';
 import { MailService } from './mail.service';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -37,8 +39,10 @@ import { MailService } from './mail.service';
     JwtStrategy,
     JwtRefreshStrategy,
     GoogleStrategy,
+    FacebookStrategy,
     MailService,
+    RolesGuard,
   ],
-  exports: [AuthService],
+  exports: [AuthService, RolesGuard],
 })
 export class AuthModule {}

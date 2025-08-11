@@ -43,13 +43,13 @@ export class AuthService {
   }
 
   async login(user: User) {
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.setCurrentRefreshToken(tokens.refreshToken, user.id);
     return tokens;
   }
 
   async register(createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
+    const user = await this.usersService.create({ role: 'user', ...createUserDto });
     await this.sendVerification(user);
     return {
       message: 'Registration successful. Please verify your email.',
@@ -109,7 +109,7 @@ export class AuthService {
     if (!isRefreshTokenMatching) {
       throw new UnauthorizedException();
     }
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.email, user.role);
     await this.setCurrentRefreshToken(tokens.refreshToken, user.id);
     return tokens;
   }
@@ -119,10 +119,10 @@ export class AuthService {
     await this.usersService.update(userId, { currentHashedRefreshToken });
   }
 
-  private async getTokens(userId: string, email: string) {
+  private async getTokens(userId: string, email: string, role: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, role },
         {
           secret:
             this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET') ?? '',
@@ -133,7 +133,7 @@ export class AuthService {
         },
       ),
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, role },
         {
           secret:
             this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET') ?? '',
