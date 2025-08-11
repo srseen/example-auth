@@ -37,8 +37,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         lastName: profile.name?.familyName,
         profilePictureUrl: profile.photos?.[0]?.value,
         googleId: profile.id,
+        // Users authenticated via Google are implicitly verified
+        isEmailVerified: true,
       };
       user = await this.usersService.create(newUser);
+    } else if (!user.isEmailVerified) {
+      // Existing users logging in with Google should be marked verified
+      await this.usersService.update(user.id, { isEmailVerified: true });
+      user.isEmailVerified = true;
     }
     return user;
   }
