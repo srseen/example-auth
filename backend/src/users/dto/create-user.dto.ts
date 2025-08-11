@@ -5,4 +5,5 @@ export class CreateUserDto {
   lastName?: string;
   profilePictureUrl?: string;
   googleId?: string;
+  isEmailVerified?: boolean;
 }
