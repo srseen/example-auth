@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
   const { login, resendVerification } = useAuth();
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       setShowResend(false);
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       const axiosErr = err as AxiosError;
       if (axiosErr.response?.status === 403) {
@@ -110,8 +111,11 @@ export default function LoginPage() {
           )}
         </form>
         <div className="mt-6 text-center">
-          <a
-            href="http://localhost:3000/api/v1/auth/google"
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href = `${apiUrl}/auth/google`;
+            }}
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             <svg
@@ -122,7 +126,7 @@ export default function LoginPage() {
               <path d="M12.24 10.29c-.21-.68-.34-1.4-.34-2.14 0-2.05 1.34-3.5 3.57-3.5 1.22 0 2.06.5 2.59 1.02l2.09-2.09C17.99 2.49 15.1 1 12.24 1 7.4 1 3.5 4.77 3.5 9.5c0 4.5 3.05 8.15 7.37 8.87l-.01.01-.01.01c-1.07.18-2.09.28-3.09.28-1.55 0-2.9-.3-3.9-1.01l-2.09 2.09C3.5 20.51 7.4 23 12.24 23c4.84 0 8.74-2.49 8.74-7.5 0-.9-.1-1.7-.29-2.49l-8.45-8.45z" />
             </svg>
             Login with Google
-          </a>
+          </button>
         </div>
       </div>
     </div>

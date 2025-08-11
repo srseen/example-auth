@@ -4,48 +4,58 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Task } from '../../tasks/entities/task.entity';
 import { EmailVerification } from '../../auth/entities/email-verification.entity';
 
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ type: 'varchar', length: 255, nullable: true, select: false })
+  password: string | null;
 
-  @Column()
+  @Column({ type: 'varchar', length: 100 })
   firstName: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 100 })
   lastName: string;
 
-  @Column({ nullable: true })
-  profilePictureUrl?: string;
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  profilePictureUrl: string | null;
 
-  @Column({ nullable: true })
-  googleId?: string;
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
+  googleId: string | null;
 
-  @Column({ nullable: true })
-  currentHashedRefreshToken?: string;
+  @Column({ type: 'text', nullable: true, select: false })
+  currentHashedRefreshToken: string | null;
 
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isEmailVerified: boolean;
 
   @OneToMany(() => EmailVerification, (verification) => verification.user)
   emailVerifications: EmailVerification[];
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
+    if (this.password) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
   }
 }

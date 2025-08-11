@@ -27,7 +27,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   setAuth: (data: AuthResponse) => void;
   refreshUser: () => Promise<void>;
 }
@@ -92,7 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await api.post("/auth/resend-verification", { email });
   };
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // ignore errors during logout
+    }
     setUser(null);
     setAccessTokenState(null);
     setApiAccessToken(null);

@@ -15,6 +15,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 
 @Controller('auth')
@@ -49,18 +50,8 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(
-    @Req() req: Request & { user: User },
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const tokens = await this.authService.login(req.user);
-    res.cookie('Authentication', tokens.accessToken, {
-      httpOnly: true,
-    });
-    res.cookie('Refresh', tokens.refreshToken, {
-      httpOnly: true,
-    });
-    return tokens;
+  async login(@Req() req: Request & { user: User }) {
+    return this.authService.login(req.user);
   }
 
   @UseGuards(JwtRefreshGuard)
@@ -70,6 +61,19 @@ export class AuthController {
   ) {
     const { id, refreshToken } = req.user;
     return this.authService.getNewTokens(id, refreshToken);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Req() req: Request & { user: { id: string } }) {
+    await this.authService.logout(req.user.id);
+    return { message: 'Logged out' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async profile(@Req() req: Request & { user: { id: string } }) {
+    return this.authService.getProfile(req.user.id);
   }
 
   @Get('google')
@@ -83,8 +87,18 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const tokens = await this.authService.login(req.user);
-    res.cookie('Authentication', tokens.accessToken, { httpOnly: true });
-    res.cookie('Refresh', tokens.refreshToken, { httpOnly: true });
-    return res.redirect(this.configService.get<string>('FRONTEND_URL') ?? '/');
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? '';
+    const { id, email, firstName, lastName, profilePictureUrl } = req.user;
+    const userParam = encodeURIComponent(
+      JSON.stringify({ id, email, firstName, lastName, profilePictureUrl }),
+    );
+    const params = new URLSearchParams({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: userParam,
+    });
+    return res.redirect(
+      `${frontendUrl}/auth/google/callback?${params.toString()}`,
+    );
   }
 }

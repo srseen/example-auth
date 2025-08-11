@@ -7,8 +7,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -19,7 +19,7 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold">
+            <Link to="/dashboard" className="text-xl font-bold">
               Example Auth
             </Link>
           </div>
@@ -27,7 +27,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 <Link
-                  to="/"
+                  to="/dashboard"
                   className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-700"
                 >
                   Dashboard
@@ -39,7 +39,7 @@ export default function Navbar() {
                   Profile
                 </Link>
                 <button
-                  onClick={handleLogout}
+                  onClick={() => void handleLogout()}
                   className="rounded-md bg-red-500 px-3 py-2 text-sm font-medium hover:bg-red-600"
                 >
                   Logout
@@ -100,7 +100,7 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               <Link
-                to="/"
+                to="/dashboard"
                 className="block rounded-md px-3 py-2 text-base font-medium hover:bg-gray-700"
                 onClick={() => setMenuOpen(false)}
               >
@@ -115,7 +115,7 @@ export default function Navbar() {
               </Link>
               <button
                 onClick={() => {
-                  handleLogout();
+                  void handleLogout();
                   setMenuOpen(false);
                 }}
                 className="block w-full rounded-md bg-red-500 px-3 py-2 text-left text-base font-medium hover:bg-red-600"
