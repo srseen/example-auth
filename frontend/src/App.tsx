@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import GoogleCallbackPage from './pages/GoogleCallbackPage';
 import VerifySuccessPage from './pages/VerifySuccessPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import Layout from './components/Layout';
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+        <Route path="/verify/email" element={<VerifyEmailPage />} />
         <Route path="/verify/success" element={<VerifySuccessPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route
