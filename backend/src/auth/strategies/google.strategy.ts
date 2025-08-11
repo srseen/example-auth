@@ -25,26 +25,34 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: Profile,
   ): Promise<User> {
     const email = profile.emails?.[0]?.value;
+    const picture = profile.photos?.[0]?.value;
     let user = await this.usersService.findByGoogleId(profile.id);
     if (!user && email) {
       user = await this.usersService.findByEmail(email);
     }
+
     if (!user) {
       const newUser: any = {
         email: email ?? '',
-        password: profile.id,
         firstName: profile.name?.givenName,
         lastName: profile.name?.familyName,
-        profilePictureUrl: profile.photos?.[0]?.value,
+        profilePictureUrl: picture,
         googleId: profile.id,
         // Users authenticated via Google are implicitly verified
         isEmailVerified: true,
       };
       user = await this.usersService.create(newUser);
-    } else if (!user.isEmailVerified) {
-      // Existing users logging in with Google should be marked verified
-      await this.usersService.update(user.id, { isEmailVerified: true });
-      user.isEmailVerified = true;
+    } else {
+      const updateData: Partial<User> = {};
+      if (!user.googleId) updateData.googleId = profile.id;
+      if (!user.profilePictureUrl && picture) {
+        updateData.profilePictureUrl = picture;
+      }
+      if (!user.isEmailVerified) updateData.isEmailVerified = true;
+      if (Object.keys(updateData).length > 0) {
+        await this.usersService.update(user.id, updateData);
+        user = { ...user, ...updateData } as User;
+      }
     }
     return user;
   }

@@ -1,5 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
-import PrivateRoute from './PrivateRoute';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
@@ -16,13 +16,14 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
         <Route path="/verify/success" element={<VerifySuccessPage />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route
-          path="/"
-          element={<PrivateRoute><DashboardPage /></PrivateRoute>}
+          path="/dashboard"
+          element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}
         />
         <Route
           path="/profile"
-          element={<PrivateRoute><ProfilePage /></PrivateRoute>}
+          element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
         />
       </Route>
     </Routes>
