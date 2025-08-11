@@ -29,7 +29,7 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
-    if (!user) {
+    if (!user || !user.password) {
       return null;
     }
     const isPasswordMatching = await bcrypt.compare(pass, user.password);
@@ -144,5 +144,18 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async logout(userId: string) {
+    await this.usersService.update(userId, { currentHashedRefreshToken: null });
+  }
+
+  async getProfile(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    const { password, currentHashedRefreshToken, ...result } = user;
+    return result;
   }
 }

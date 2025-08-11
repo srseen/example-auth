@@ -10,7 +10,7 @@ import type {
 
 let accessToken: string | null = null;
 let refreshToken: string | null = null;
-let logoutHandler: (() => void) | null = null;
+let logoutHandler: (() => void | Promise<void>) | null = null;
 
 export const setAccessToken = (token: string | null) => {
   accessToken = token;
@@ -20,7 +20,7 @@ export const setRefreshToken = (token: string | null) => {
   refreshToken = token;
 };
 
-export const setLogoutHandler = (fn: () => void) => {
+export const setLogoutHandler = (fn: () => void | Promise<void>) => {
   logoutHandler = fn;
 };
 
@@ -47,7 +47,8 @@ api.interceptors.response.use(
       !originalRequest?._retry &&
       originalRequest?.url !== '/auth/login' &&
       originalRequest?.url !== '/auth/register' &&
-      originalRequest?.url !== '/auth/refresh'
+      originalRequest?.url !== '/auth/refresh' &&
+      originalRequest?.url !== '/auth/logout'
     ) {
       originalRequest._retry = true;
       try {
@@ -74,13 +75,17 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         if (logoutHandler) {
-          logoutHandler();
+          await logoutHandler();
         }
         return Promise.reject(refreshError);
       }
     }
-    if (logoutHandler && error.response?.status === 401) {
-      logoutHandler();
+    if (
+      logoutHandler &&
+      error.response?.status === 401 &&
+      originalRequest?.url !== '/auth/logout'
+    ) {
+      await logoutHandler();
     }
     return Promise.reject(error);
   }
