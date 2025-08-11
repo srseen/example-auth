@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy } from 'passport-jwt';
 import { Request } from 'express';
 
 interface RefreshPayload {
@@ -16,9 +16,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
 ) {
   constructor(private readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req.cookies?.refreshToken,
-      ]),
+      // ใช้ custom extractor แทน fromExtractors
+      jwtFromRequest: (req: Request): string | null =>
+        (req?.cookies?.refreshToken as string | undefined) ?? null,
       secretOrKey: configService.get<string>('JWT_REFRESH_TOKEN_SECRET') ?? '',
       passReqToCallback: true,
     });
