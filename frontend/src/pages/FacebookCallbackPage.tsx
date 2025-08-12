@@ -10,7 +10,14 @@ export default function FacebookCallbackPage() {
     const params = new URLSearchParams(window.location.search);
     const accessToken = params.get("accessToken");
     const userParam = params.get("user");
-    const user = userParam ? JSON.parse(userParam) : undefined;
+    let user;
+    if (userParam) {
+      try {
+        user = JSON.parse(decodeURIComponent(userParam));
+      } catch (error) {
+        console.error("Failed to parse user info", error);
+      }
+    }
     if (accessToken) {
       setAuth({ accessToken, user });
       void refreshUser();
